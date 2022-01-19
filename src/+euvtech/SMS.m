@@ -25,11 +25,23 @@ classdef SMS < euvtech.SMSAbstract
         % {logical} storage for all answers
         lAll = false(1, 10);
         
+        lBeamlineOpen = false;
+        
         
         u8IndexBeamlineOpen = 1
         u8IndexBeamlineBusy = 2
+        u8IndexOnlineMode = 3
+        u8IndexRemoteMode = 4
+        u8IndexSourceOn = 5
+        u8IndexSourceError = 6
+        u8IndexVacuumOK = 7
+        u8IndexRoughingPumpsOK = 8
+        u8IndexSystemWarning = 9
+        u8IndexSystemError = 10 
         
-        
+        % {timer 1x1}
+        t1
+       
         
     end
     
@@ -93,7 +105,16 @@ classdef SMS < euvtech.SMSAbstract
             
         end        
         
+        
         function l = getBeamlineOpen(this)
+            
+            l = this.lBeamlineOpen; 
+            return;
+            
+            % The hardware has no physical limit switch to know if the
+            % glass plate is in/out.  Christian recommended a 1 second
+            % delay between issuing the open command and reporting that it
+            % is actually open.  Can handle this with a one-time use timer
             lAll = this.getAll();
             l = lAll(this.u8IndexBeamlineOpen);
         end
@@ -145,7 +166,17 @@ classdef SMS < euvtech.SMSAbstract
         
         
         function setBeamlineOpen(this, lVal)
+            
             write(this.comm, 'coils', this.u8CoilBeamlineOpen, double(lVal))
+            
+            dSec = 1.5;
+            this.t1 = timer(...
+                'StartDelay', dSec, ...
+                'TimerFcn', @this.onTimer1, ...
+                'UserData', lVal ... % use this access info in the callback
+            );
+            start(this.t1);
+            
         end
         
         
@@ -167,6 +198,10 @@ classdef SMS < euvtech.SMSAbstract
                 l = true;
             end
             
+        end
+        
+        function onTimer1(this, src, evt)
+            this.lBeamlineOpen = src.UserData; % Set to value of UserData
         end
         
     end

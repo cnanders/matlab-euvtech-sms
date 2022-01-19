@@ -11,6 +11,8 @@ classdef SMSVirtual < euvtech.SMSAbstract
                        
         lBeamlineOpen = false;
         
+        % {timer 1x1}
+        t1
     end
     
     methods
@@ -69,7 +71,16 @@ classdef SMSVirtual < euvtech.SMSAbstract
         
         
         function setBeamlineOpen(this, lVal)
-            this.lBeamlineOpen = lVal;
+            %this.lBeamlineOpen = lVal;
+            
+            % Implement following the same pattern as the real hardware
+            dSec = 1.5;
+            this.t1 = timer(...
+                'StartDelay', dSec, ...
+                'TimerFcn', @this.onTimer1, ...
+                'UserData', lVal ... % use this access info in the callback
+            );
+            start(this.t1);
         end
                    
         
@@ -92,6 +103,10 @@ classdef SMSVirtual < euvtech.SMSAbstract
         
         function l = getRandomLogical(this)
             l = randn(1) >= 0;
+        end
+        
+        function onTimer1(this, src, evt)
+            this.lBeamlineOpen = src.UserData; % Set to value of UserData
         end
         
     end
