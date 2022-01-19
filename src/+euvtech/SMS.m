@@ -27,6 +27,8 @@ classdef SMS < euvtech.SMSAbstract
         
         
         u8IndexBeamlineOpen = 1
+        u8IndexBeamlineBusy = 2
+        
         
         
     end
