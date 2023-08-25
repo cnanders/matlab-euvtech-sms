@@ -10,9 +10,9 @@ classdef SMSAbstract < handle
         l = getSourceError(this)
         l = getVacuumOK(this)
         l = getRoughingPumpsOK(this)
-        l = getSystemWarning(this)
-        l = getSystemError(this)
-        setBeamlineOpen(this, lVal)   
+%         l = getSystemWarning(this)
+%         l = getSystemError(this)
+        setBeamlineOpen(this, lVal)  
         
     end
 end
